@@ -5,7 +5,7 @@ from cartas import CARTAS
 from modelo import Carta, Jogador, Tabuleiro
 from tela import limpar_tela, mostrar_mao, mostrar_tabuleiro, perguntar
 
-REGRAS = {"Order"}  # regras extras ativas (para desativar uma, é só tirá-la do conjunto)
+REGRAS = {"Swap", "Order"}  # regras extras ativas (para desativar uma, é só tirá-la do conjunto)
 
 
 def distribuir(jogadores):
@@ -14,6 +14,15 @@ def distribuir(jogadores):
     for k, jogador in enumerate(jogadores):
         for dados in sorteadas[5 * k:5 * k + 5]:
             jogador.receber(Carta(*dados))
+
+
+def trocar_cartas(j1, j2):
+    """Regra Swap: cada jogador entrega uma carta sorteada da mão ao outro."""
+    de_j1 = j1.mao.pop(random.randrange(len(j1.mao)))
+    de_j2 = j2.mao.pop(random.randrange(len(j2.mao)))
+    j1.receber(de_j2)
+    j2.receber(de_j1)
+    print(f"Swap: {j1.nome} entregou {de_j1.nome} e recebeu {de_j2.nome} do {j2.nome}.")
 
 
 def jogar_turno(jogador, tab):
@@ -56,6 +65,8 @@ def main():
     print("=== TRIPLE TRIAD ===")
     print("Regras extras:", ", ".join(sorted(REGRAS)) or "nenhuma")
     distribuir(jogadores)
+    if "Swap" in REGRAS:
+        trocar_cartas(j1, j2)
     input("Pressione Enter para começar...")
     partida(jogadores)
     print(f"Placar: {j1.nome} {j1.pontos} x {j2.pontos} {j2.nome} (cartas no tabuleiro + mão)")
