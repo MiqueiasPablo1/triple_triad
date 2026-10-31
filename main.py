@@ -5,7 +5,7 @@ from cartas import CARTAS
 from modelo import Carta, Jogador, Tabuleiro
 from tela import limpar_tela, mostrar_mao, mostrar_tabuleiro, perguntar
 
-REGRAS = {"Swap", "Order"}  # regras extras ativas (para desativar uma, é só tirá-la do conjunto)
+REGRAS = {"Swap", "Order", "Combo"}  # regras extras ativas (para desativar uma, é só tirá-la do conjunto)
 
 
 def distribuir(jogadores):
@@ -35,8 +35,11 @@ def jogar_turno(jogador, tab):
         i = perguntar("Escolha a carta: ", range(1, len(jogador.mao) + 1)) - 1
     pos = perguntar("Escolha a casa: ", [p + 1 for p in tab.livres()]) - 1
     carta = jogador.mao.pop(i)
-    capturadas = tab.colocar(carta, pos)
-    return f"{jogador.nome} jogou {carta.nome} na casa {pos + 1} e capturou {capturadas} carta(s)."
+    diretas, em_cadeia = tab.colocar(carta, pos, combo="Combo" in REGRAS)
+    texto = f"{jogador.nome} jogou {carta.nome} na casa {pos + 1} e capturou {diretas} carta(s)"
+    if em_cadeia:
+        texto += f" + {em_cadeia} em combo"
+    return texto + "."
 
 
 def partida(jogadores):

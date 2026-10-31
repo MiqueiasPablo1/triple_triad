@@ -44,14 +44,26 @@ class Tabuleiro:
             if 0 <= nl < 3 and 0 <= nc < 3 and self.celulas[3 * nl + nc] is not None:
                 yield lado, 3 * nl + nc
 
-    def colocar(self, carta, pos):
-        """Coloca a carta e captura os vizinhos inimigos com lado menor. Devolve quantas capturou."""
+    def colocar(self, carta, pos, combo=False):
+        """Coloca a carta e captura os vizinhos inimigos com lado menor.
+
+        Com combo, cada carta capturada também ataca os seus vizinhos (reação em cadeia).
+        Devolve (capturas feitas pela carta jogada, capturas feitas em cadeia).
+        """
         self.celulas[pos] = carta
-        capturadas = 0
-        for lado, q in self.vizinhos(pos):
-            alvo = self.celulas[q]
-            oposto = (lado + 2) % 4  # lado da carta vizinha que encosta nesta
-            if alvo.dono is not carta.dono and carta.lados[lado] > alvo.lados[oposto]:
-                alvo.capturar(carta.dono)
-                capturadas += 1
-        return capturadas
+        fila, diretas, em_cadeia = [pos], 0, 0
+        while fila:
+            p = fila.pop(0)
+            atacante = self.celulas[p]
+            for lado, q in self.vizinhos(p):
+                alvo = self.celulas[q]
+                oposto = (lado + 2) % 4  # lado da carta vizinha que encosta nesta
+                if alvo.dono is not atacante.dono and atacante.lados[lado] > alvo.lados[oposto]:
+                    alvo.capturar(atacante.dono)
+                    if p == pos:
+                        diretas += 1
+                    else:
+                        em_cadeia += 1
+                    if combo:
+                        fila.append(q)
+        return diretas, em_cadeia
