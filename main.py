@@ -5,7 +5,8 @@ from cartas import CARTAS
 from modelo import Carta, Jogador, Tabuleiro
 from tela import limpar_tela, mostrar_mao, mostrar_tabuleiro, perguntar
 
-REGRAS = {"Swap", "Order", "Combo", "Sudden Death"}  # regras extras ativas (para desativar uma, é só tirá-la do conjunto)
+# Regras extras ativas. Para desativar uma, é só tirá-la do conjunto.
+REGRAS = {"Swap", "Order", "Combo", "Sudden Death"}
 
 
 def distribuir(jogadores):
