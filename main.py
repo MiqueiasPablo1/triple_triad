@@ -5,7 +5,7 @@ from cartas import CARTAS
 from modelo import Carta, Jogador, Tabuleiro
 from tela import limpar_tela, mostrar_mao, mostrar_tabuleiro, perguntar
 
-REGRAS = {"Swap", "Order", "Combo"}  # regras extras ativas (para desativar uma, é só tirá-la do conjunto)
+REGRAS = {"Swap", "Order", "Combo", "Sudden Death"}  # regras extras ativas (para desativar uma, é só tirá-la do conjunto)
 
 
 def distribuir(jogadores):
@@ -61,6 +61,13 @@ def partida(jogadores):
     return tab
 
 
+def morte_subita(jogadores, tab):
+    """Regra Sudden Death: cada jogador volta com as cartas que possui (tabuleiro + mão) e 5 pontos."""
+    for jogador in jogadores:
+        jogador.mao = [c for c in tab.celulas if c.dono is jogador] + jogador.mao
+        jogador.pontos = 5
+
+
 def main():
     jogadores = [Jogador(1), Jogador(2)]
     j1, j2 = jogadores
@@ -71,12 +78,17 @@ def main():
     if "Swap" in REGRAS:
         trocar_cartas(j1, j2)
     input("Pressione Enter para começar...")
-    partida(jogadores)
-    print(f"Placar: {j1.nome} {j1.pontos} x {j2.pontos} {j2.nome} (cartas no tabuleiro + mão)")
-    if j1.pontos == j2.pontos:
-        print("Empate!")
-    else:
-        print(f"{max(jogadores, key=lambda j: j.pontos).nome} venceu!")
+    while True:
+        tab = partida(jogadores)
+        print(f"Placar: {j1.nome} {j1.pontos} x {j2.pontos} {j2.nome} (cartas no tabuleiro + mão)")
+        if j1.pontos != j2.pontos:
+            print(f"{max(jogadores, key=lambda j: j.pontos).nome} venceu!")
+            return
+        if "Sudden Death" not in REGRAS:
+            print("Empate!")
+            return
+        input("Empate! Sudden Death: nova partida com as cartas de cada um. Enter para continuar...")
+        morte_subita(jogadores, tab)
 
 
 if __name__ == "__main__":
