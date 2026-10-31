@@ -5,7 +5,7 @@ from cartas import CARTAS
 from modelo import Carta, Jogador, Tabuleiro
 from tela import limpar_tela, mostrar_mao, mostrar_tabuleiro, perguntar
 
-REGRAS = set()  # regras extras ativas
+REGRAS = {"Order"}  # regras extras ativas (para desativar uma, é só tirá-la do conjunto)
 
 
 def distribuir(jogadores):
@@ -19,7 +19,11 @@ def distribuir(jogadores):
 def jogar_turno(jogador, tab):
     """Mostra a mão, lê a jogada e a aplica no tabuleiro. Devolve o texto da jogada."""
     mostrar_mao(jogador)
-    i = perguntar("Escolha a carta: ", range(1, len(jogador.mao) + 1)) - 1
+    if "Order" in REGRAS:
+        i = 0  # Order: só a primeira carta da mão pode ser jogada
+        print(f"Regra Order: você joga a carta 1 ({jogador.mao[0].nome}).")
+    else:
+        i = perguntar("Escolha a carta: ", range(1, len(jogador.mao) + 1)) - 1
     pos = perguntar("Escolha a casa: ", [p + 1 for p in tab.livres()]) - 1
     carta = jogador.mao.pop(i)
     capturadas = tab.colocar(carta, pos)
